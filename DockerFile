@@ -1,0 +1,9 @@
+FROM maven:3.8.84-openjdk-17 Asbuild
+WORKDIR /app
+COPY pom.xml
+COPY src ./src
+RUN mvn clean package -DskipTests
+FROM rm -rf ROOT/
+COPY --from=build /app/target/cicdclouds-api.war .ROOT.war
+EXPOSE 9191
+CMD ["catalina.sh", "run"]
