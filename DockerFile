@@ -1,9 +1,11 @@
-FROM maven:3.8.84-openjdk-17 Asbuild
-WORKDIR /app
-COPY pom.xml
-COPY src ./src
-RUN mvn clean package -DskipTests
-FROM rm -rf ROOT/
-COPY --from=build /app/target/cicdclouds-api.war .ROOT.war
-EXPOSE 9191
+FROM tomcat:9.0-jdk11-openjdk-slim
+
+# Optional: Clean out default Tomcat apps
+RUN rm -rf /usr/local/tomcat/webapps/*
+
+# The path is relative to where the 'docker build' command is run
+# Since your Dockerfile is in the root, 'target/cicdclouds-api.war' is correct
+COPY target/cicdclouds-api.war /usr/local/tomcat/webapps/ROOT.war
+
+EXPOSE 8080
 CMD ["catalina.sh", "run"]
