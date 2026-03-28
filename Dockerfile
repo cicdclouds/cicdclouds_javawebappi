@@ -1,15 +1,16 @@
-# 1. Update the base image to use JDK 21 so it matches your Jenkins server
-FROM tomcat:10.1-jdk21-openjdk-slim
+# Step 1: Use the official Tomcat image bundled with Java 21
+# We use Eclipse Temurin (formerly AdoptOpenJDK) as it is the industry standard
+FROM tomcat:10.1-jdk21-temurin-jammy
 
-# 2. FIX THE PORT: This tells Tomcat to actually listen on 8181 instead of 8080
-RUN sed -i 's/port="8080"/port="8181"/' /usr/local/tomcat/conf/server.xml
-
-# 3. Clean out default Tomcat apps
+# Step 2: Delete default Tomcat apps to reduce attack surface (Security Best Practice)
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-# 4. Copy your newly built WAR file into the container
+# Step 3: Copy your pre-built WAR file into the image as ROOT.war
+# This ensures your API is served at the root domain (e.g., http://your-ip/)
 COPY target/cicdclouds-api.war /usr/local/tomcat/webapps/ROOT.war
 
-# 5. Document the port and start the server
+# Step 4: Expose the standard internal port
 EXPOSE 8181
+
+# Step 5: Start Tomcat
 CMD ["catalina.sh", "run"]
